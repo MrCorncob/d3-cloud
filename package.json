@@ -20,7 +20,6 @@
   },
   "main": "d3.layout.cloud.js",
   "dependencies": {
-    "canvas": "0.10.x"
   },
   "devDependencies": {
     "uglify-js": "1.2.x"
