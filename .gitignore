@@ -1,7 +1,7 @@
-/node_modules/
-/bower_components/
-/dist/
-/build/
+node_modules/
+bower_components/
+dist/
+build/
 
 # OS generated files #
 ######################
