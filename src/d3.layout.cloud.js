@@ -15,7 +15,9 @@
     root.returnExports = factory(root.d3);
   }
 }(this, function(d3, Canvas) {
-  
+
+  var random = Math.random;
+
   var Cloud = function Cloud() {
     var size = [256, 256],
       startPoint = null,
@@ -28,7 +30,6 @@
       randomize = true,
       padding = cloudPadding,
       spiral = archimedeanSpiral,
-      random = Math.random,
       words = [],
       timeInterval = Infinity,
       event = d3.dispatch("word", "end"),
