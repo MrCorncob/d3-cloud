@@ -20,7 +20,7 @@
   },
   "main": "d3.layout.cloud.js",
   "dependencies": {
-    "d3": "^3.4.8"
+    "d3": "^3.5.5"
   },
   "devDependencies": {
     "uglify-js": "1.2.x"
