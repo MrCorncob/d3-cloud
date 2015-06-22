@@ -60,29 +60,45 @@
 
       function step() {
         var start = +new Date,
-            d;
+            d, x, y, nsi;
         while (+new Date - start < timeInterval && ++i < n && timer) {
           d = data[i];
           if (startPoint) {
-            d.x = startPoint[0];
-            d.y = startPoint[1];
+            x = d.x = startPoint[0];
+            y = d.y = startPoint[1];
           } else {
-            d.x = (size[0] * (Math.random() + .5)) >> 1;
-            d.y = (size[1] * (Math.random() + .5)) >> 1;
+            // d.x = (size[0] * ((randomize ? Math.random() : .5) + .5)) >> 1;
+            // d.y = (size[1] * ((randomize ? Math.random() : .5) + .5)) >> 1;
+            x=  d.x = (size[0] * (random() + .5)) >> 1;
+            y =d.y = (size[1] * (random() + .5)) >> 1;
           }
-          // d.x = (size[0] * ((randomize ? Math.random() : .5) + .5)) >> 1;
-          // d.y = (size[1] * ((randomize ? Math.random() : .5) + .5)) >> 1;
-          d.x = (size[0] * (random() + .5)) >> 1;
-          d.y = (size[1] * (random() + .5)) >> 1;
+          nsi = i + 1;
           cloudSprite(d, data, i);
-          if (d.hasText && place(board, d, bounds)) {
-            tags.push(d);
-            event.word(d);
-            if (bounds) cloudBounds(bounds, d);
-            else bounds = [{x: d.x + d.x0, y: d.y + d.y0}, {x: d.x + d.x1, y: d.y + d.y1}];
-            // Temporary hack
-            d.x -= size[0] >> 1;
-            d.y -= size[1] >> 1;
+          while(d.hasText) {
+            if (place(board, d, bounds)) {
+              tags.push(d);
+              event.word(d);
+              if (bounds) cloudBounds(bounds, d);
+              else bounds = [
+                {x: d.x + d.x0, y: d.y + d.y0},
+                {x: d.x + d.x1, y: d.y + d.y1}
+              ];
+              // Temporary hack
+              d.x -= size[0] >> 1;
+              d.y -= size[1] >> 1;
+              break;
+            } else {
+              // reset
+              delete d.sprite;
+              d.sprite = null;
+              d.x = x;
+              d.y = y;
+              // decrement the size until it fits
+              d.size = nsi < data.length ? data[nsi++].size : d.size - (d.size >> 3);
+              if (~~d.size > 0) {
+                cloudSprite(d, data, i);
+              }
+            }
           }
         }
         if (i >= n) {
@@ -90,7 +106,7 @@
           event.end(tags, bounds);
         }
       }
-    }
+    };
 
     cloud.stop = function() {
       if (timer) {
