@@ -1,9 +1,10 @@
 // Word cloud layout by Jason Davies, http://www.jasondavies.com/word-cloud/
 // Algorithm due to Jonathan Feinberg, http://static.mrfeinberg.com/bv_ch03.pdf
 (function(exports) {
-  // var d3 = require('d3/d3');
+  var d3 = exports.d3 || require('d3/d3');
 
-  function cloud() {
+
+  var Cloud = function Cloud() {
     var size = [256, 256],
       text = cloudText,
       font = cloudFont,
@@ -45,12 +46,12 @@
       return cloud;
 
       function step() {
-        var start = +new Date,
+        var start = +new Date(),
           d;
-        while (+new Date - start < timeInterval && ++i < n && timer) {
+        while (+new Date() - start < timeInterval && ++i < n && timer) {
           d = data[i];
-          d.x = (size[0] * (Math.random() + .5)) >> 1;
-          d.y = (size[1] * (Math.random() + .5)) >> 1;
+          d.x = (size[0] * (Math.random() + 0.5)) >> 1;
+          d.y = (size[1] * (Math.random() + 0.5)) >> 1;
           cloudSprite(d, data, i);
           if (d.hasText && place(board, d, bounds)) {
             tags.push(d);
@@ -73,7 +74,7 @@
           event.end(tags, bounds);
         }
       }
-    }
+    };
 
     cloud.stop = function() {
       if (timer) {
@@ -85,7 +86,7 @@
 
     cloud.timeInterval = function(x) {
       if (!arguments.length) return timeInterval;
-      timeInterval = x == null ? Infinity : x;
+      timeInterval = x === null ? Infinity : x;
       return cloud;
     };
 
@@ -101,7 +102,7 @@
         startY = tag.y,
         maxDelta = Math.sqrt(size[0] * size[0] + size[1] * size[1]),
         s = spiral(size),
-        dt = Math.random() < .5 ? 1 : -1,
+        dt = Math.random() < 0.5 ? 1 : -1,
         t = -dt,
         dxdy,
         dx,
@@ -206,7 +207,7 @@
     };
 
     return d3.rebind(cloud, event, "on");
-  }
+  };
 
   function cloudText(d) {
     return d.text;
@@ -294,7 +295,7 @@
       // Zero the buffer
       for (var i = 0; i < h * w32; i++) sprite[i] = 0;
       x = d.xoff;
-      if (x == null) return;
+      if (x === null) return;
       y = d.yoff;
       var seen = 0,
         seenRow = -1;
@@ -355,7 +356,7 @@
   function archimedeanSpiral(size) {
     var e = size[0] / size[1];
     return function(t) {
-      return [e * (t *= .1) * Math.cos(t), t * Math.sin(t)];
+      return [e * (t *= 0.1) * Math.cos(t), t * Math.sin(t)];
     };
   }
 
@@ -423,6 +424,8 @@
     c.textAlign = "center";
   }
 
-  exports.cloud = cloud;
+  d3.layout.cloud = Cloud;
+  exports.d3 = d3;
+  console.log("Declared d3.layout.cloud", d3);
 
-})(typeof exports === "undefined" ? d3.layout || (d3.layout = {}) : exports);
+})(typeof exports === "undefined" ? this : exports);
