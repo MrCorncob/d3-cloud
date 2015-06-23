@@ -1,0 +1,20 @@
+{
+  "name": "amd",
+  "version": "1.1.2",
+  "authors": [],
+  "moduleType": [
+    "amd"
+  ],
+  "license": "BSD-3-Clause",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "requirejs": "~2.1.18",
+    "d3": "~3.5.5"
+  }
+}
