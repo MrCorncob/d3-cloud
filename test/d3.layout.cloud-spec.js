@@ -1,79 +1,114 @@
 (function() {
 
-  /* globals require, describe, it, expect, console */
+  /* globals require, describe, it, expect, console, d3 */
   'use strict';
 
   try {
 
-    var localdocument;
     var locald3;
+    var reuseOptimzedCloud;
+
     try {
-      localdocument = document;
       locald3 = d3;
+      reuseOptimzedCloud = d3.layout.cloud;
     } catch (e) {
-      localdocument = require("jsdom").jsdom("<html><head></head><body></body></html>");
       locald3 = require("d3");
-      require("../");
+      reuseOptimzedCloud = require("../");
     }
-    // window = localdocument.createWindow();
-    // navigator = window.navigator;
-    // CSSStyleDeclaration = window.CSSStyleDeclaration;
 
-    describe('d3.layout.cloud', function() {
+    var calculateAndScaleMeaningfulWords = function(text) {
+      var frequencyCount = {},
+        whitespaceRegEx = /\s+/g,
+        nonEnglishCharactersRegEx = /[^A-Za-z0-9]/g,
+        LIMIT_WORDS_IN_CLOUD = 500,
+        leastFrequentCount,
+        mostFrequentCount;
 
-      it('should parse a text into words', function() {
+      var isMeaningLess = function(word) {
+        if (word.length <= 3) {
+          return true;
+        }
+      };
 
-        var endTime,
-          w = 960 * 1,
-          h = 600 * 1;
+      // Build frequency count
+      text.split(whitespaceRegEx).map(function(word) {
+        word = word.replace(nonEnglishCharactersRegEx, '');
+        if (isMeaningLess(word)) {
+          return;
+        }
+        frequencyCount[word] = (frequencyCount[word] || 0) + 1;
+      });
 
-        var layout = locald3.layout.cloud()
-          .padding(0)
-          .size([w, h])
-          .font("Impact")
-          .text(function(d) {
-            return d.key;
-          })
-          .on("end", draw);
+      // Convert frequency count hash into an array with the x most frequent words
+      frequencyCount = locald3.entries(frequencyCount).sort(function(a, b) {
+        return b.value - a.value;
+      }).slice(0, LIMIT_WORDS_IN_CLOUD);
 
-        var start  = +new Date();
+      return frequencyCount;
+    };
 
-        for (var i = 0; i < 2; i++) {
-          parseText("this is a small cloud");
+    var WIDTH = 960 * 1;
+    var HEIGHT = 600 * 1;
+
+
+    describe('efficient reuse', function() {
+
+      var startTime,
+        endTime,
+        itterationTimes = [],
+        calculateHowLongItTook,
+        myReusedCloud,
+        calculateMeaningfulWordsAndStartCloud;
+
+      calculateHowLongItTook = function() {
+        endTime = Date.now();
+        console.log('Time', endTime - startTime);
+        itterationTimes.push(endTime - startTime);
+      };
+
+      myReusedCloud = reuseOptimzedCloud()
+        .padding(0)
+        .size([WIDTH, HEIGHT])
+        .font('Impact')
+        .text(function(word) {
+          return word.key;
+        })
+        .on('end', calculateHowLongItTook);
+
+
+      calculateMeaningfulWordsAndStartCloud = function(text) {
+        var frequencyCount = calculateAndScaleMeaningfulWords(text),
+          leastFrequentCount,
+          mostFrequentCount;
+
+        // Make font size relative to the range between the most frequent and least frequent words
+        leastFrequentCount = +frequencyCount[frequencyCount.length - 1].value || 1;
+        mostFrequentCount = +frequencyCount[0].value;
+        myReusedCloud.fontSize(function(wordNode) {
+          return leastFrequentCount + (wordNode - leastFrequentCount) / (mostFrequentCount - leastFrequentCount);
+        });
+
+        // Set the words to this frequency count and render
+        myReusedCloud.words(frequencyCount);
+        myReusedCloud.start();
+      };
+
+      it('should take half as long on re-use of the cloud library', function() {
+
+        // Run x itterations to see if it runs in linear time
+        var NUMBER_OF_ITTERATIONS = 5;
+        for (var i = 0; i < NUMBER_OF_ITTERATIONS; i++) {
+          startTime = Date.now();
+          calculateMeaningfulWordsAndStartCloud('this is a small cloud');
         }
 
-        function parseText(text) {
-          var tags = {};
-          text.split(/\s+/g).forEach(function(word) {
-            word = word.replace(/[^A-Za-z0-9]/g, "");
-            if (word.length <= 3) return;
-            tags[word] = (tags[word] || 0) + 1;
-          });
-          tags = locald3.entries(tags).sort(function(a, b) {
-            return b.value - a.value;
-          }).slice(0, 500);
-          var min = +tags[tags.length - 1].value || 1,
-            max = +tags[0].value;
-          layout.fontSize(function(d) {
-            return min + (d - min) / (max - min);
-          }).words(tags).start();
-        }
+        expect(itterationTimes.length).toEqual(NUMBER_OF_ITTERATIONS);
 
-        function draw() {
-          endTime = +new Date();
-          console.log("Time", +new Date() - start);
-        }
-
-        expect(start).toBeDefined();
-        expect(endTime).toBeDefined();
-
-        expect(layout).toBeDefined();
-        expect(layout.words().length).toEqual(3);
-
+        expect(itterationTimes[0]).toBeGreaterThan(itterationTimes[1]);
+        expect(itterationTimes[0]).toBeGreaterThan(itterationTimes[1] * 2);
       });
 
     });
-
 
   } catch (e) {
     console.log(e);
