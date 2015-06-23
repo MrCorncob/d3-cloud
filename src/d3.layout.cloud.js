@@ -104,6 +104,8 @@
               d.size = nsi < data.length ? data[nsi++].size : d.size - (d.size >> 3);
               if (~~d.size > 0) {
                 cloudSprite(d, data, i);
+              } else {
+                d.hasText = false;
               }
             }
           }
