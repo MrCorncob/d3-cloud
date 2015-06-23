@@ -12,7 +12,8 @@
       locald3 = d3;
     } catch (e) {
       localdocument = require("jsdom").jsdom("<html><head></head><body><div id='a-cloud'></div></body></html>");
-      locald3 = require("../src/d3.layout.cloud");
+      locald3 = require("d3");
+      require("../");
     }
     // window = localdocument.createWindow();
     // navigator = window.navigator;

@@ -1,5 +1,4 @@
 (function() {
-
   /* globals require, describe, it, expect, console */
   'use strict';
 
@@ -12,7 +11,8 @@
       locald3 = d3;
     } catch (e) {
       localdocument = require("jsdom").jsdom("<html><head></head><body></body></html>");
-      locald3 = require("../src/d3.layout.cloud");
+      locald3 = require("d3");
+      require("../");
     }
     // window = localdocument.createWindow();
     // navigator = window.navigator;
@@ -20,7 +20,7 @@
 
     describe('d3.layout.cloud', function() {
 
-      it('should support load as AMD', function() {
+      it('should add itself to d3', function() {
         expect(locald3).toBeDefined();
         expect(locald3.layout).toBeDefined();
         expect(locald3.layout.cloud).toBeDefined();
