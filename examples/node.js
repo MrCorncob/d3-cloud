@@ -1,4 +1,5 @@
-var d3 = require('../index');
+var d3 = require('d3');
+var cloud = require('../');
 var jsdom = require("jsdom").jsdom;
 
 var fs = require('fs');
@@ -6,20 +7,21 @@ var fs = require('fs');
 var document = jsdom("<body></body>");
 var fill = d3.scale.category20();
 
-d3.layout.cloud().size([900, 900])
-	.words([
-	"Hello", "world", "normally", "you", "want", "more", "words",
-	"than", "this"].map(function(d) {
-	return {text: d, size: 10 + Math.random() * 90};
-	}))
-	.padding(5)
-	.rotate(function() { return ~~(Math.random() * 2) * 90; })
-	.font("Impact")
-	.fontSize(function(d) { return d.size; })
-	.on("end", function(words){
-		draw(words, document.body);
-	})
-	.start();
+var words = ["Hello", "world", "normally", "you", "want", "more", "words", "than", "this"]
+    .map(function(d) {
+      return {text: d, size: 10 + Math.random() * 90};
+    });
+
+cloud().size([900, 900])
+    .words(words)
+    .padding(5)
+    .rotate(function() { return ~~(Math.random() * 2) * 90; })
+    .font("Impact")
+    .fontSize(function(d) { return d.size; })
+    .on("end", function(words){
+        draw(words, document.body);
+    })
+    .start();
 
 fs.writeFileSync('output.html', document.body.innerHTML);
 
