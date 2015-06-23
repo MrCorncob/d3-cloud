@@ -11,6 +11,7 @@
     "tests"
   ],
   "devDependencies": {
-    "jasmine": "~2.3.4"
+    "jasmine": "~2.3.4",
+    "d3": "~3.5.5"
   }
 }
