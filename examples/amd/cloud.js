@@ -1,8 +1,9 @@
 require([
-    //'d3',
-    'd3.layout.cloud'
+    '../../test/bower_components/d3/d3',
+    '../../src/d3.layout.cloud'
 ], function(
-    d3
+    d3, 
+    cloudLayout
 ){
     'use strict';
 
