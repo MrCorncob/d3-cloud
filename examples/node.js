@@ -1,3 +1,5 @@
+#!/usr/local/bin/node
+
 var d3 = require('d3');
 var cloud = require('../');
 var jsdom = require("jsdom").jsdom;
@@ -23,7 +25,9 @@ cloud().size([900, 900])
     })
     .start();
 
+console.log('Open output.svg and/or output.html to see the rendered output\n', document.body.innerHTML);
 fs.writeFileSync('output.html', document.body.innerHTML);
+fs.writeFileSync('output.svg', document.body.innerHTML);
 
 function draw(words, node) {
     d3.select(node).append("svg")

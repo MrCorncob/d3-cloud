@@ -1,7 +1,7 @@
 node_modules/
 bower_components/
-dist/
-build/
+output.html
+output.svg
 
 # OS generated files #
 ######################
