@@ -1,24 +1,12 @@
 // Word cloud layout by Jason Davies, http://www.jasondavies.com/word-cloud/
 // Algorithm due to Jonathan Feinberg, http://static.mrfeinberg.com/bv_ch03.pdf
+(function() {
+if (typeof define === "function" && define.amd) define(["d3"], cloud);
+else cloud(this.d3);
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['d3'], factory);
-  } else if (typeof exports === 'object') {
-    // Node. Does not work with strict CommonJS, but
-    // only CommonJS-like environments that support module.exports,
-    // like Node.
-    module.exports = factory(require('d3'), require('canvas'));
-  } else {
-    // Browser globals (root is window)
-    root.returnExports = factory(root.d3);
-  }
-}(this, function(d3, Canvas) {
-
+function cloud(d3) {
   var random = Math.random;
-
-  var Cloud = function Cloud() {
+  d3.layout.cloud = function cloud() {
     var size = [256, 256],
       startPoint = null,
       text = cloudText,
@@ -27,7 +15,6 @@
       fontStyle = cloudFontNormal,
       fontWeight = cloudFontNormal,
       rotate = cloudRotate,
-      randomize = true,
       padding = cloudPadding,
       spiral = archimedeanSpiral,
       words = [],
@@ -63,16 +50,14 @@
       return cloud;
 
       function step() {
-        var start = +new Date(),
-          d, x, y, nsi;
-        while (+new Date() - start < timeInterval && ++i < n && timer) {
-          d = data[i];
+        var start = Date.now(),
+          x, y, nsi;
+        while (Date.now() - start < timeInterval && ++i < n && timer) {
+          var d = data[i];
           if (startPoint) {
             x = d.x = startPoint[0];
             y = d.y = startPoint[1];
           } else {
-            // d.x = (size[0] * ((randomize ? Math.random() : .5) + .5)) >> 1;
-            // d.y = (size[1] * ((randomize ? Math.random() : .5) + .5)) >> 1;
             x = d.x = (size[0] * (random() + 0.5)) >> 1;
             y = d.y = (size[1] * (random() + 0.5)) >> 1;
           }
@@ -125,12 +110,6 @@
       return cloud;
     };
 
-    cloud.timeInterval = function(x) {
-      if (!arguments.length) return timeInterval;
-      timeInterval = x === null ? Infinity : x;
-      return cloud;
-    };
-
     function place(board, tag, bounds) {
       var perimeter = [{
           x: 0,
@@ -143,7 +122,6 @@
         startY = tag.y,
         maxDelta = Math.sqrt(size[0] * size[0] + size[1] * size[1]),
         s = spiral(size),
-        // dt = (randomize ? Math.random() : .5) < .5 ? 1 : -1,
         dt = random() < 0.5 ? 1 : -1,
         t = -dt,
         dxdy,
@@ -154,7 +132,7 @@
         dx = ~~dxdy[0];
         dy = ~~dxdy[1];
 
-        if (Math.min(dx, dy) > maxDelta) break;
+        if (Math.min(Math.abs(dx), Math.abs(dy)) >= maxDelta) break;
 
         tag.x = startX + dx;
         tag.y = startY + dy;
@@ -192,81 +170,57 @@
       return false;
     }
 
-    cloud.words = function(x) {
-      if (!arguments.length) return words;
-      words = x;
-      return cloud;
+    cloud.timeInterval = function(_) {
+      return arguments.length ? (timeInterval = _ === null ? Infinity : _, cloud) : timeInterval;
     };
 
-    cloud.size = function(x) {
-      if (!arguments.length) return size;
-      size = [+x[0], +x[1]];
-      return cloud;
+    cloud.words = function(_) {
+      return arguments.length ? (words = _, cloud) : words;
+    };
+
+    cloud.size = function(_) {
+      return arguments.length ? (size = [+_[0], +_[1]], cloud) : size;
+    };
+
+    cloud.font = function(_) {
+      return arguments.length ? (font = d3.functor(_), cloud) : font;
+    };
+
+    cloud.fontStyle = function(_) {
+      return arguments.length ? (fontStyle = d3.functor(_), cloud) : fontStyle;
+    };
+
+    cloud.fontWeight = function(_) {
+      return arguments.length ? (fontWeight = d3.functor(_), cloud) : fontWeight;
+    };
+
+    cloud.rotate = function(_) {
+      return arguments.length ? (rotate = d3.functor(_), cloud) : rotate;
+    };
+
+    cloud.text = function(_) {
+      return arguments.length ? (text = d3.functor(_), cloud) : text;
+    };
+
+    cloud.spiral = function(_) {
+      return arguments.length ? (spiral = spirals[_] || _, cloud) : spiral;
+    };
+
+    cloud.fontSize = function(_) {
+      return arguments.length ? (fontSize = d3.functor(_), cloud) : fontSize;
+    };
+
+    cloud.padding = function(_) {
+      return arguments.length ? (padding = d3.functor(_), cloud) : padding;
+    };
+
+    cloud.random = function(_) {
+      return arguments.length ? (random = _, cloud) : random;
     };
 
     cloud.startPoint = function(x) {
       if (!arguments.length) return startPoint;
       startPoint = [+x[0], +x[1]];
-      return cloud;
-    };
-
-    cloud.font = function(x) {
-      if (!arguments.length) return font;
-      font = d3.functor(x);
-      return cloud;
-    };
-
-    cloud.fontStyle = function(x) {
-      if (!arguments.length) return fontStyle;
-      fontStyle = d3.functor(x);
-      return cloud;
-    };
-
-    cloud.fontWeight = function(x) {
-      if (!arguments.length) return fontWeight;
-      fontWeight = d3.functor(x);
-      return cloud;
-    };
-
-    cloud.rotate = function(x) {
-      if (!arguments.length) return rotate;
-      rotate = d3.functor(x);
-      return cloud;
-    };
-
-    cloud.randomize = function(x) {
-      if (!arguments.length) return randomize;
-      randomize = !!x;
-      return cloud;
-    };
-
-    cloud.text = function(x) {
-      if (!arguments.length) return text;
-      text = d3.functor(x);
-      return cloud;
-    };
-
-    cloud.spiral = function(x) {
-      if (!arguments.length) return spiral;
-      spiral = spirals[x + ""] || x;
-      return cloud;
-    };
-
-    cloud.random = function(x) {
-      if (!arguments.length) return random;
-      random = d3.functor(x);
-      return cloud;
-    };
-
-    cloud.fontSize = function(x) {
-      if (!arguments.length) return fontSize;
-      fontSize = d3.functor(x);
-      return cloud;
-    };
-
-    cloud.padding = function(x) {
-      if (!arguments.length) return padding;
-      padding = d3.functor(x);
       return cloud;
     };
 
@@ -490,7 +444,5 @@
   c.fillStyle = c.strokeStyle = "red";
   c.textAlign = "center";
 
-  d3.layout.cloud = Cloud;
-
-  return d3;
-}));
+}
+})();
