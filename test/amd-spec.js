@@ -18,7 +18,7 @@
     // navigator = window.navigator;
     // CSSStyleDeclaration = window.CSSStyleDeclaration;
 
-    describe('d3.layout.cloud', function() {
+    describe('AMD', function() {
 
       it('should add itself to d3', function() {
         expect(locald3).toBeDefined();

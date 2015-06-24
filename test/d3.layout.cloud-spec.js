@@ -1,74 +1,208 @@
 (function() {
 
-  /* globals require, describe, it, expect, console */
+  /* globals require, describe, it, expect, console, d3 */
   'use strict';
 
   try {
 
-    var localdocument;
     var locald3;
+    var cloud;
+
     try {
-      localdocument = document;
       locald3 = d3;
+      cloud = d3.layout.cloud;
     } catch (e) {
-      localdocument = require("jsdom").jsdom("<html><head></head><body></body></html>");
       locald3 = require("d3");
-      require("../");
+      cloud = require("../");
     }
-    // window = localdocument.createWindow();
-    // navigator = window.navigator;
-    // CSSStyleDeclaration = window.CSSStyleDeclaration;
+
+    var calculateAndScaleMeaningfulWords = function(text) {
+      var frequencyCount = {},
+        whitespaceRegEx = /\s+/g,
+        nonEnglishCharactersRegEx = /[^A-Za-z0-9]/g,
+        LIMIT_WORDS_IN_CLOUD = 500,
+        leastFrequentCount,
+        mostFrequentCount;
+
+      var isMeaningLess = function(word) {
+        if (word.length <= 3) {
+          return true;
+        }
+      };
+
+      // Build frequency count
+      text.split(whitespaceRegEx).map(function(word) {
+        word = word.replace(nonEnglishCharactersRegEx, '');
+        if (isMeaningLess(word)) {
+          return;
+        }
+        frequencyCount[word] = (frequencyCount[word] || 0) + 1;
+      });
+
+      // Convert frequency count hash into an array with the x most frequent words
+      frequencyCount = locald3.entries(frequencyCount).sort(function(a, b) {
+        return b.value - a.value;
+      }).slice(0, LIMIT_WORDS_IN_CLOUD);
+
+      // Make font size relative to the range between the most frequent and least frequent words
+      // leastFrequentCount = +frequencyCount[frequencyCount.length - 1].value || 1;
+      // mostFrequentCount = +frequencyCount[0].value;
+      // frequencyCount.map(function(wordNode) {
+      //   wordNode.size = leastFrequentCount + (wordNode.size - leastFrequentCount) / (mostFrequentCount - leastFrequentCount);
+      // });
+
+      return frequencyCount;
+    };
+
+
+    var SHORT_TEXT = "Hello world normally you want more words than this example.";
+    var wordsByFrequency = calculateAndScaleMeaningfulWords(SHORT_TEXT);
+    var WIDTH = 960 * 1;
+    var HEIGHT = 600 * 1;
 
     describe('d3.layout.cloud', function() {
 
-      it('should parse a text into words', function() {
+      describe('construction', function() {
 
-        var endTime,
-          w = 960 * 1,
-          h = 600 * 1;
+        it('should return an object', function() {
+          var myCloud = cloud();
+          expect(myCloud).toBeDefined();
+        });
 
-        var layout = locald3.layout.cloud()
-          .padding(0)
-          .size([w, h])
-          .font("Impact")
-          .text(function(d) {
-            return d.key;
-          })
-          .on("end", draw);
+        it('should support the new operator', function() {
+          var Cloud = cloud;
+          var myNewedCloud = new Cloud();
+          expect(myNewedCloud).toBeDefined();
+        });
 
-        var start  = +new Date();
+      });
 
-        for (var i = 0; i < 2; i++) {
-          parseText("this is a small cloud");
-        }
+      describe('configuration', function() {
 
-        function parseText(text) {
-          var tags = {};
-          text.split(/\s+/g).forEach(function(word) {
-            word = word.replace(/[^A-Za-z0-9]/g, "");
-            if (word.length <= 3) return;
-            tags[word] = (tags[word] || 0) + 1;
+        it('should support immediate configuration', function() {
+          var myChainConfiguredCloud = cloud()
+            .padding(0)
+            .size([WIDTH, HEIGHT])
+            .font('Impact')
+            .text(function(word) {
+              return word.key;
+            })
+            .on('end', function() {
+              // Normally draw here 
+            });
+
+          expect(myChainConfiguredCloud).toBeDefined();
+          expect(myChainConfiguredCloud.size()).toEqual([WIDTH, HEIGHT]);
+        });
+
+        it('should support delayed configuration', function() {
+          var myConfiguredCloud = cloud();
+          expect(myConfiguredCloud).toBeDefined();
+
+          myConfiguredCloud.padding(10);
+
+          myConfiguredCloud.size([WIDTH, HEIGHT]);
+          expect(myConfiguredCloud.size()).toEqual([WIDTH, HEIGHT]);
+
+          myConfiguredCloud.font('Impact');
+
+          myConfiguredCloud.text(function(word) {
+            return word.key;
           });
-          tags = locald3.entries(tags).sort(function(a, b) {
-            return b.value - a.value;
-          }).slice(0, 500);
-          var min = +tags[tags.length - 1].value || 1,
-            max = +tags[0].value;
-          layout.fontSize(function(d) {
-            return min + (d - min) / (max - min);
-          }).words(tags).start();
-        }
+        });
 
-        function draw() {
-          endTime = +new Date();
-          console.log("Time", +new Date() - start);
-        }
+      });
 
-        expect(start).toBeDefined();
-        expect(endTime).toBeDefined();
+      describe('words()', function() {
 
-        expect(layout).toBeDefined();
-        expect(layout.words().length).toEqual(3);
+        var myWordCloud = cloud()
+          .padding(0)
+          .size([WIDTH, HEIGHT])
+          .font('Impact')
+          .text(function(word) {
+            return word.key;
+          })
+          .on('end', function() {
+            // Normally draw here 
+          });
+
+        it('should have a words() function which sets and/or returns the words in the cloud', function() {
+          myWordCloud.words(wordsByFrequency);
+          expect(myWordCloud.words().length).toEqual(9);
+        });
+
+        it('should have word objects with minimally key, and value', function() {
+          myWordCloud.words(wordsByFrequency);
+          var sampleWordObject = myWordCloud.words()[1];
+          expect(sampleWordObject.key).toEqual('world');
+          expect(sampleWordObject.value).toEqual(1);
+        });
+
+      });
+
+      describe('start()', function() {
+
+        var myStartedCloud = cloud()
+          .padding(0)
+          .size([WIDTH, HEIGHT])
+          .font('Impact')
+          .text(function(word) {
+            return word.key;
+          })
+          .on('end', function() {
+            // Normally draw here 
+          });
+
+        it('should add svg attributes', function() {
+          expect(wordsByFrequency[2].key).toEqual('normally');
+          expect(wordsByFrequency[2].value).toEqual(1);
+
+          myStartedCloud.words(wordsByFrequency);
+          var sampleWordObject = myStartedCloud.words()[1];
+          expect(sampleWordObject.key).toEqual('world');
+          expect(sampleWordObject.value).toEqual(1);
+
+          expect(sampleWordObject.text).toBeUndefined();
+          expect(sampleWordObject.font).toBeUndefined();
+          expect(sampleWordObject.style).toBeUndefined();
+          expect(sampleWordObject.weight).toBeUndefined();
+          expect(sampleWordObject.rotate).toBeUndefined();
+          expect(sampleWordObject.size).toBeUndefined();
+          expect(sampleWordObject.padding).toBeUndefined();
+          expect(sampleWordObject.width).toBeUndefined();
+          expect(sampleWordObject.height).toBeUndefined();
+          expect(sampleWordObject.xoff).toBeUndefined();
+          expect(sampleWordObject.yoff).toBeUndefined();
+          expect(sampleWordObject.x1).toBeUndefined();
+          expect(sampleWordObject.y1).toBeUndefined();
+          expect(sampleWordObject.x0).toBeUndefined();
+          expect(sampleWordObject.y0).toBeUndefined();
+          expect(sampleWordObject.hasText).toBeUndefined();
+          expect(sampleWordObject.x).toBeUndefined();
+          expect(sampleWordObject.y).toBeUndefined();
+
+          myStartedCloud.start();
+          expect(sampleWordObject.text).toEqual(sampleWordObject.key);
+          expect(sampleWordObject.font).toEqual('Impact');
+          expect(sampleWordObject.style).toEqual('normal');
+          expect(sampleWordObject.weight).toEqual('normal');
+
+          expect(sampleWordObject.rotate).toBeDefined();
+          expect(sampleWordObject.size).toBeDefined();
+          expect(sampleWordObject.padding).toBeDefined();
+          expect(sampleWordObject.width).toBeDefined();
+          expect(sampleWordObject.height).toBeDefined();
+          expect(sampleWordObject.xoff).toBeDefined();
+          expect(sampleWordObject.yoff).toBeDefined();
+          expect(sampleWordObject.x1).toBeDefined();
+          expect(sampleWordObject.y1).toBeDefined();
+          expect(sampleWordObject.x0).toBeDefined();
+          expect(sampleWordObject.y0).toBeDefined();
+          expect(sampleWordObject.hasText).toBeDefined();
+          expect(sampleWordObject.x).toBeDefined();
+          expect(sampleWordObject.y).toBeDefined();
+          // expect(sampleWordObject.sprite).toBeDefined();
+        });
 
       });
 

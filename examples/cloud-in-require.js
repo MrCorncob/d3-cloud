@@ -1,5 +1,5 @@
 require([
-    //'d3',
+    'd3',
     'd3.layout.cloud'
 ], function(
     d3

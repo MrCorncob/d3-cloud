@@ -19,7 +19,7 @@
     // navigator = window.navigator;
     // CSSStyleDeclaration = window.CSSStyleDeclaration;
 
-    describe('d3.layout.cloud', function() {
+    describe('Simple end-to-end with render', function() {
       var simpleCloudElement = localdocument.createElement("div");
       simpleCloudElement.setAttribute("id", "simple-cloud");
       localdocument.body.appendChild(simpleCloudElement);
