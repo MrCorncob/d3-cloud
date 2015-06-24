@@ -30,9 +30,9 @@
         SEED = 2;
 
       // Short hand to build an array of word objects with random importance (as a function to ensure no shared state between the clouds)
-      myFewWordsFactory = function() {
+      myFewWordsFactory = function(textToUseSoTestingCloudsAreDifferentButGeneratedTheSame) {
         var randomImportanceGenerator = new LocalMersenneTwister(SEED);
-        return "As a user I want to be able to remove words and see roughly the same cloud".split(" ")
+        return textToUseSoTestingCloudsAreDifferentButGeneratedTheSame.split(" ")
           .map(function(word) {
             return {
               text: word,
@@ -81,10 +81,10 @@
 
 
       describe('generate same text data', function() {
-
+        var firstPageLoad = myFewWordsFactory("As a dev I want to be able to generate similar word arrays");
+        var secondPageLoad = myFewWordsFactory("As a dev I want to be able to generate similar word arrays");
+        
         it('should have equivalent data', function() {
-          var firstPageLoad = myFewWordsFactory();
-          var secondPageLoad = myFewWordsFactory();
           expect(secondPageLoad[0].importance).not.toEqual(firstPageLoad[firstPageLoad.length - 1].importance);
           for (var wordIndex = 0; wordIndex < secondPageLoad.length; wordIndex++) {
             expect(secondPageLoad[wordIndex].importance).toEqual(firstPageLoad[wordIndex].importance);
@@ -92,7 +92,7 @@
         });
 
         it('should use the same code but not leak state ', function() {
-          expect(myFewWordsFactory()).not.toBe(myFewWordsFactory());
+          expect(firstPageLoad).not.toBe(secondPageLoad);
         });
 
       });
@@ -113,7 +113,7 @@
         // Configure our cloud with d3 chaining
         myRerenderableCloud
           .size([WIDTH, HEIGHT])
-          .words(myFewWordsFactory())
+          .words(myFewWordsFactory("As a user I want to be able to remove words and see roughly the same cloud"))
           .padding(5)
           .rotate(function(word) {
             if (word.rotate === null || word.rotate === undefined) {
@@ -240,7 +240,7 @@
             return myRandomGenerator.random();
           })
           .size([WIDTH, HEIGHT])
-          .words(myFewWordsFactory())
+          .words(myFewWordsFactory("As a user I want be able to have every draw of the same text look the same"))
           .padding(5)
           .rotate(function(word) {
             if (word.rotate === null || word.rotate === undefined) {
@@ -280,7 +280,7 @@
               return mySecondRandomGenerator.random();
             })
             .size([WIDTH, HEIGHT])
-            .words(myFewWordsFactory())
+            .words(myFewWordsFactory("As a user I want be able to have every draw of the same text look the same"))
             .padding(5)
             .rotate(function(word) {
               if (word.rotate === null || word.rotate === undefined) {
