@@ -27,6 +27,7 @@
     "canvas": "^1.2.1"
   },
   "devDependencies": {
-    "jsdom": "^3.0.0"
+    "jsdom": "^3.0.0",
+    "mersenne-twister": "^1.0.1"
   }
 }
