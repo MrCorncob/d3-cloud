@@ -1,4 +1,4 @@
-// (function() {
+(function() {
 
   /* globals require, describe, it, expect, console, d3, document */
   'use strict';
@@ -19,20 +19,22 @@
     }
 
     describe('Replicable layout', function() {
-      var myFewWords,
+      var myFewWordsFactory,
         myColorFunction,
         myReproduceableDrawFunction,
-        WIDTH = 900,
-        HEIGHT = 900;
+        WIDTH = 400,
+        HEIGHT = 400;
 
-      // Short hand to build an array of word objects with random importance
-      myFewWords = "As a user I want to be able to remove words and see roughly the same cloud".split(" ")
-        .map(function(word) {
-          return {
-            text: word,
-            importance: 10 + Math.random() * 90
-          };
-        });
+      // Short hand to build an array of word objects with random importance (as a function to ensure no shared state between the clouds)
+      myFewWordsFactory = function() {
+        return "As a user I want to be able to remove words and see roughly the same cloud".split(" ")
+          .map(function(word) {
+            return {
+              text: word,
+              importance: 10 + Math.random() * 90
+            };
+          });
+      };
 
       myColorFunction = locald3.scale.category20();
 
@@ -46,7 +48,7 @@
         svg.attr("width", WIDTH)
           .attr("height", HEIGHT)
           .append("g")
-          .attr("transform", "translate(450,450)")
+          .attr("transform", "translate(" + WIDTH / 2 + "," + HEIGHT / 2 + ")")
           .selectAll("text")
           .data(words)
           .enter().append("text")
@@ -73,7 +75,7 @@
       };
 
 
-      describe('Redraw a new cloud', function() {
+      xdescribe('Redraw a new cloud', function() {
 
         // Hoist all vars 
         var myRerenderableCloud,
@@ -89,7 +91,7 @@
         // Configure our cloud with d3 chaining
         myRerenderableCloud
           .size([WIDTH, HEIGHT])
-          .words(myFewWords)
+          .words(myFewWordsFactory())
           .padding(5)
           .rotate(function(word) {
             if (word.rotate === null || word.rotate === undefined) {
@@ -170,7 +172,118 @@
 
       });
 
-      xdescribe('Redraw an existing cloud', function() {
+      /**
+       * https://github.com/jasondavies/d3-cloud/pull/1
+       * https://github.com/jasondavies/d3-cloud/pull/8
+       * https://github.com/jasondavies/d3-cloud/pull/14
+       * https://github.com/jasondavies/d3-cloud/pull/35
+       * https://github.com/WheatonCS/Lexos/issues/149
+       */
+      describe('Redraw the same pseudorandom cloud from the same text', function() {
+        // Hoist all vars 
+        var myPseudorandomCloud,
+          myPseudorandomCloudsElement,
+          mySecondPseudorandomCloud,
+          mySecondPseudorandomCloudsElement;
+
+        myPseudorandomCloudsElement = localdocument.createElement("span");
+        myPseudorandomCloudsElement.setAttribute("id", "pseudo-random-cloud");
+        localdocument.body.appendChild(myPseudorandomCloudsElement);
+
+        mySecondPseudorandomCloudsElement = localdocument.createElement("span");
+        mySecondPseudorandomCloudsElement.setAttribute("id", "second-pseudo-random-cloud");
+        localdocument.body.appendChild(mySecondPseudorandomCloudsElement);
+
+        // Ask d3-cloud to make an cloud object for us
+        myPseudorandomCloud = d3CloudLayout();
+
+        // Configure our cloud with d3 chaining
+        myPseudorandomCloud
+          .size([WIDTH, HEIGHT])
+          .words(myFewWordsFactory())
+          .padding(5)
+          .rotate(function(word) {
+            if (word.rotate === null || word.rotate === undefined) {
+              word.rotate = ~~(Math.random() * 2) * 90;
+            }
+            return word.rotate;
+          })
+          .font("Impact")
+          .fontSize(function(word) {
+            return word.importance;
+          })
+          .on("end", function(words) {
+            myReproduceableDrawFunction(words, myPseudorandomCloudsElement);
+          });
+
+
+        myPseudorandomCloud.start();
+        it('should generate a seemingly random cloud', function() {
+          var representativeWord = myPseudorandomCloud.words()[15];
+
+          expect(representativeWord).toBeDefined();
+          expect(representativeWord).toBe(myPseudorandomCloud.words()[15]);
+          expect(representativeWord.rotate).toBeDefined();
+          expect(representativeWord.size).toBeDefined();
+          expect(representativeWord.padding).toBeDefined();
+          expect(representativeWord.width).toBeDefined();
+          expect(representativeWord.height).toBeDefined();
+        });
+
+        it('should generate a second matching seemingly random cloud', function() {
+          // Ask d3-cloud to make an cloud object for us
+          mySecondPseudorandomCloud = d3CloudLayout();
+
+          // Configure our cloud with d3 chaining
+          mySecondPseudorandomCloud
+            .size([WIDTH, HEIGHT])
+            .words(myFewWordsFactory())
+            .padding(5)
+            .rotate(function(word) {
+              if (word.rotate === null || word.rotate === undefined) {
+                word.rotate = ~~(Math.random() * 2) * 90;
+              }
+              return word.rotate;
+            })
+            .font("Impact")
+            .fontSize(function(word) {
+              return word.importance;
+            })
+            .on("end", function(words) {
+              myReproduceableDrawFunction(words, mySecondPseudorandomCloudsElement);
+            });
+
+
+          mySecondPseudorandomCloud.start();
+
+          var representativeWord = myPseudorandomCloud.words()[15];
+          expect(representativeWord).toBeDefined();
+          expect(representativeWord).toBe(myPseudorandomCloud.words()[15]);
+
+          var representativeWordInSecondCloud = mySecondPseudorandomCloud.words()[15];
+          expect(representativeWordInSecondCloud).toBeDefined();
+          expect(representativeWordInSecondCloud).toBe(mySecondPseudorandomCloud.words()[15]);
+          // expect(representativeWordInSecondCloud.rotate).toBeDefined();
+          // expect(representativeWordInSecondCloud.size).toBeDefined();
+          // expect(representativeWordInSecondCloud.padding).toBeDefined();
+          // expect(representativeWordInSecondCloud.width).toBeDefined();
+          // expect(representativeWordInSecondCloud.height).toBeDefined();
+
+          // expect(representativeWordInSecondCloud).not.toBe(representativeWord);
+          // expect(representativeWordInSecondCloud.text).toEqual(wordAfterRender.text);
+          // expect(representativeWordInSecondCloud.value).toEqual(wordAfterRender.value);
+          // expect(representativeWordInSecondCloud.rotate).toEqual(wordAfterRender.rotate);
+          // expect(representativeWordInSecondCloud.size).toEqual(wordAfterRender.size);
+          // expect(representativeWordInSecondCloud.padding).toEqual(wordAfterRender.padding);
+          // expect(representativeWordInSecondCloud.width).toEqual(wordAfterRender.width);
+          // expect(representativeWordInSecondCloud.height).toEqual(wordAfterRender.height);
+
+
+        });
+
+      });
+
+      describe('Redraw an existing cloud', function() {
 
         it('should not change word objects render attributes', function() {
           expect(true).toBeTruthy();
@@ -179,7 +292,6 @@
       });
 
     });
-
 
   } catch (e) {
     console.log(e);
