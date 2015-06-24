@@ -1,4 +1,4 @@
-(function() {
+// (function() {
 
   /* globals require, describe, it, expect, console, d3, document */
   'use strict';
@@ -19,32 +19,69 @@
     }
 
     describe('Replicable layout', function() {
+      var myFewWords,
+        myColorFunction,
+        myReproduceableDrawFunction,
+        WIDTH = 900,
+        HEIGHT = 900;
+
+      // Short hand to build an array of word objects with random importance
+      myFewWords = "As a user I want to be able to remove words and see roughly the same cloud".split(" ")
+        .map(function(word) {
+          return {
+            text: word,
+            importance: 10 + Math.random() * 90
+          };
+        });
+
+      myColorFunction = locald3.scale.category20();
+
+
+      // Declare our own draw function which will be called on the "end" event 
+      myReproduceableDrawFunction = function(words, element) {
+        // if (element && element.children) {
+        //   element.innerHTML = "";
+        // }
+        var svg = locald3.select(element).append("svg");
+        svg.attr("width", WIDTH)
+          .attr("height", HEIGHT)
+          .append("g")
+          .attr("transform", "translate(450,450)")
+          .selectAll("text")
+          .data(words)
+          .enter().append("text")
+          .style("font-size", function(word) {
+            return word.importance + "px";
+          })
+          .style("font-family", "Impact")
+          .style("fill", function(word, i) {
+            if (!word.color) {
+              word.color = myColorFunction(i);
+            }
+            return word.color;
+          })
+          .attr("text-anchor", "middle")
+          .attr("transform", function(word) {
+            if (!word.transform) {
+              word.transform = "translate(" + [word.x, word.y] + ")rotate(" + word.rotate + ")";
+            }
+            return word.transform;
+          })
+          .text(function(word) {
+            return word.text;
+          });
+      };
+
 
       describe('Redraw a new cloud', function() {
 
         // Hoist all vars 
-        var myFewWords,
-          myRerenderableCloud,
-          myColorFunction,
-          myDrawFunction,
-          redrawNewCloudElement,
-          WIDTH = 900,
-          HEIGHT = 900;
+        var myRerenderableCloud,
+          redrawNewCloudElement;
 
         redrawNewCloudElement = localdocument.createElement("div");
         redrawNewCloudElement.setAttribute("id", "redraw-new-cloud");
         localdocument.body.appendChild(redrawNewCloudElement);
-
-        // Short hand to build an array of word objects with random importance
-        myFewWords = "As a user I want to be able to remove words and see roughly the same cloud".split(" ")
-          .map(function(word) {
-            return {
-              text: word,
-              importance: 10 + Math.random() * 90
-            };
-          });
-
-        myColorFunction = locald3.scale.category20();
 
         // Ask d3-cloud to make an cloud object for us
         myRerenderableCloud = d3CloudLayout();
@@ -55,7 +92,7 @@
           .words(myFewWords)
           .padding(5)
           .rotate(function(word) {
-            if (word.rotate === null || word.rotate === undefined ) {
+            if (word.rotate === null || word.rotate === undefined) {
               word.rotate = ~~(Math.random() * 2) * 90;
             }
             return word.rotate;
@@ -65,44 +102,8 @@
             return word.importance;
           })
           .on("end", function(words) {
-            myDrawFunction(words, redrawNewCloudElement);
+            myReproduceableDrawFunction(words, redrawNewCloudElement);
           });
-
-
-        // Declare our own draw function which will be called on the "end" event 
-        myDrawFunction = function(words, element) {
-          // if (element && element.children) {
-          //   element.innerHTML = "";
-          // }
-          var svg = locald3.select(element).append("svg");
-          svg.attr("width", WIDTH)
-            .attr("height", HEIGHT)
-            .append("g")
-            .attr("transform", "translate(450,450)")
-            .selectAll("text")
-            .data(words)
-            .enter().append("text")
-            .style("font-size", function(word) {
-              return word.importance + "px";
-            })
-            .style("font-family", "Impact")
-            .style("fill", function(word, i) {
-              if (!word.color) {
-                word.color = myColorFunction(i);
-              }
-              return word.color;
-            })
-            .attr("text-anchor", "middle")
-            .attr("transform", function(word) {
-              if (!word.transform) {
-                word.transform = "translate(" + [word.x, word.y] + ")rotate(" + word.rotate + ")";
-              }
-              return word.transform;
-            })
-            .text(function(word) {
-              return word.text;
-            });
-        };
 
         it('should have its own element', function() {
           expect(redrawNewCloudElement).toBeDefined();
