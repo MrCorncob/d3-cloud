@@ -331,10 +331,61 @@
 
       });
 
-      xdescribe('Redraw an existing cloud', function() {
+      describe('Redraw a persisted cloud', function() {
+
+        // Hoist all vars 
+        var myPreviousCloudFromAPersistantStore,
+          myCloudFromPersistantStore,
+          previouslyRenderedCloudElement;
+
+        previouslyRenderedCloudElement = localdocument.createElement("div");
+        previouslyRenderedCloudElement.setAttribute("id", "draw-old-cloud");
+        localdocument.body.appendChild(previouslyRenderedCloudElement);
+
+        myPreviousCloudFromAPersistantStore = '{"words":[{"text":"previous","importance":65.73438733117655,"font":"Impact","style":"normal","weight":"normal","rotate":0,"size":65,"padding":5,"width":320,"height":130,"xoff":480,"yoff":0,"x1":160,"y1":64,"x0":-160,"y0":-58,"hasText":true,"x":-32,"y":-43,"color":"#ffbb78","transform":"translate(2,-77)rotate(0)"},{"text":"session","importance":20.795548947062343,"font":"Impact","style":"normal","weight":"normal","rotate":90,"size":20,"padding":5,"width":64,"height":89,"xoff":1888,"yoff":0,"x1":32,"y1":43,"x0":-32,"y0":-42,"hasText":true,"x":101,"y":152,"color":"#7f7f7f","transform":"translate(-75,143)rotate(90)"}]}';
+
+        // Ask d3-cloud to make an cloud object for us
+        myCloudFromPersistantStore = d3CloudLayout()
+
+        // and configure our cloud with d3 chaining
+        myCloudFromPersistantStore.size([WIDTH, HEIGHT])
+          .words(JSON.parse(myPreviousCloudFromAPersistantStore).words)
+          .padding(5)
+          .rotate(function(word) {
+            if (word.rotate === null || word.rotate === undefined) {
+              word.rotate = ~~(Math.random() * 2) * 90;
+            }
+            return word.rotate;
+          })
+          .font("Impact")
+          .fontSize(function(word) {
+            return word.importance;
+          })
+          .on("end", function(words) {
+            myReproduceableDrawFunction(words, previouslyRenderedCloudElement);
+          });
 
         it('should not change word objects render attributes', function() {
-          expect(true).toBeTruthy();
+          myCloudFromPersistantStore.start();
+
+          var previousWord = JSON.parse(myPreviousCloudFromAPersistantStore).words[1];
+          var reRenderedWord = myCloudFromPersistantStore.words()[1];
+
+          expect(reRenderedWord.text).toEqual(previousWord.text);
+          expect(reRenderedWord.value).toEqual(previousWord.value);
+          expect(reRenderedWord.rotate).toEqual(previousWord.rotate);
+          expect(reRenderedWord.color).toEqual(previousWord.color);
+          expect(reRenderedWord.transform).toEqual(previousWord.transform);
+
+          expect(reRenderedWord.size).toEqual(previousWord.size);
+          expect(reRenderedWord.padding).toEqual(previousWord.padding);
+          expect(reRenderedWord.width).toEqual(previousWord.width);
+
+          // These might be different but the render still looks the same
+          // expect(reRenderedWord.height).toEqual(previousWord.height);
+          // expect(reRenderedWord.x).toEqual(previousWord.x);
+          // expect(reRenderedWord.y).toEqual(previousWord.y);
+
         });
 
       });
