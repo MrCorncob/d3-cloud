@@ -140,6 +140,28 @@
 
       });
 
+      describe('size()', function() {
+
+        var mySizeCloud = cloud()
+          .size([300, 400]);
+
+        it('should have a size() function which sets and/or returns the size of the svg of the cloud', function() {
+          expect(mySizeCloud.size()).toEqual([300, 400]);
+        });
+
+        it('should survive an invalid a size()', function() {
+          expect(mySizeCloud.size([null, null]).size()).toEqual([256, 256]);
+        });
+
+        it('should survive a string size()', function() {
+          expect(mySizeCloud.size(['22', '505.4']).size()).toEqual([22, 505.4]);
+        });
+
+        it('should survive a negative size()', function() {
+          expect(mySizeCloud.size([-20, -30.5]).size()).toEqual([256, 256]);
+        });
+      });
+
       describe('start()', function() {
 
         var myStartedCloud = cloud()

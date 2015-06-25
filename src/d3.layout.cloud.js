@@ -7,7 +7,9 @@ else cloud(this.d3);
 function cloud(d3) {
   var random = Math.random;
   d3.layout.cloud = function cloud() {
-    var size = [256, 256],
+    var DEFAULT_WIDTH = 256,
+      DEFAULT_HEIGHT = 256,
+      size = [DEFAULT_WIDTH, DEFAULT_HEIGHT],
       startPoint = null,
       text = cloudText,
       font = cloudFont,
@@ -179,6 +181,9 @@ function cloud(d3) {
     };
 
     cloud.size = function(_) {
+      if (!arguments.length) return size;
+      if (!_[0] || _[0] < 0) _[0] = DEFAULT_WIDTH;
+      if (!_[1] || _[1] < 1) _[1] = DEFAULT_HEIGHT;
       return arguments.length ? (size = [+_[0], +_[1]], cloud) : size;
     };
 
