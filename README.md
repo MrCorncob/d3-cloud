@@ -12,7 +12,7 @@ demonstration along with implementation details.
 
 ## Usage
 
-See the samples in `examples/`.
+See the sample code in [`examples/`](examples) and in [`test/`](test).
 
 ## API Reference
 

@@ -18,18 +18,18 @@
   document = jsdom("<body></body>");
 
   // Short hand to build an array of word objects with random importance
-  myFewWords = "Hello world normally you want more words than this".split(" ")
+  myFewWords = "Server side render into .SVG file which you can open in Gimp or Inkscape".split(" ")
     .map(function(word) {
       return {
         text: word,
-        importance: 10 + Math.random() * 90
+        importance: 10 + Math.random() * 60
       };
     });
 
   // Each word object actually looks like this
   myFewWords.push({
     text: "example",
-    importance: 100
+    importance: 10
   });
 
   myColorFunction = d3.scale.category20();
@@ -39,7 +39,7 @@
 
   // Configure our cloud with d3 chaining
   myCloud
-    .size([900, 900])
+    .size([400, 400])
     .words(myFewWords)
     .padding(5)
     .rotate(function() {
@@ -57,10 +57,10 @@
   // Declare our own draw function which will be called on the "end" event 
   myDrawFunction = function(words, element) {
     var svg = d3.select(element).append("svg");
-    svg.attr("width", 900)
-      .attr("height", 900)
+    svg.attr("width", 400)
+      .attr("height", 400)
       .append("g")
-      .attr("transform", "translate(450,450)")
+      .attr("transform", "translate(200,200)")
       .selectAll("text")
       .data(words)
       .enter().append("text")
