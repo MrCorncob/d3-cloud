@@ -23,11 +23,9 @@
     "test": "jasmine-node test"
   },
   "dependencies": {
-    "d3": "^3.5.5",
-    "canvas": "^1.2.1"
+    "d3": "^3.5.5"
   },
   "devDependencies": {
-    "jsdom": "^3.0.0",
     "mersenne-twister": "^1.0.1"
   }
 }
