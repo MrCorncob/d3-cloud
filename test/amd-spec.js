@@ -1,16 +1,13 @@
-(function() {
-  /* globals require, describe, it, expect, console */
+// (function() {
+  /* globals require, describe, it, expect, console, d3 */
   'use strict';
 
   try {
 
-    var localdocument;
     var locald3;
     try {
-      localdocument = document;
       locald3 = d3;
     } catch (e) {
-      localdocument = require("jsdom").jsdom("<html><head></head><body></body></html>");
       locald3 = require("d3");
       require("../");
     }
@@ -35,4 +32,4 @@
     console.log(e, e.stack);
   }
 
-})();
+// })();
