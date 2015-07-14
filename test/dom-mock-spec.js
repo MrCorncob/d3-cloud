@@ -65,9 +65,13 @@
 
         it("should have an appendChild function", function() {
           expect(localdocument).toBeDefined();
+          expect(localdocument.createElement).toBeDefined();
 
           var simpleCloudElement = localdocument.createElement("div");
           expect(simpleCloudElement).toBeDefined();
+          if (simpleCloudElement.type) {
+            expect(simpleCloudElement.type).toEqual("div");
+          }
 
           simpleCloudElement.setAttribute("id", "simple-cloud");
           expect(simpleCloudElement.id).toEqual("simple-cloud");
@@ -75,6 +79,19 @@
           localdocument.body.appendChild(simpleCloudElement);
           expect(localdocument.body).toBeDefined();
           expect(localdocument.body.children).toBeDefined();
+        });
+
+        it("should have an appendChild function which can append a canvas", function() {
+          expect(localdocument).toBeDefined();
+          expect(localdocument.createElement).toBeDefined();
+
+          var simpleCloudElement = localdocument.createElement("canvas");
+          expect(simpleCloudElement).toBeDefined();
+          if (simpleCloudElement.type) {
+            expect(simpleCloudElement.type).toEqual("image");
+          }
+
+          expect(typeof simpleCloudElement.getContext).toEqual("function");
         });
 
       });
