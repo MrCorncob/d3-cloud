@@ -1,8 +1,13 @@
 (function() {
 	/* globals require, global, module, console */
 	"use strict";
-	
-	var CanvasMock = require("canvas") || require("canvas-mock");
+
+	var CanvasMock;
+	try {
+		CanvasMock = require("canvas")
+	} catch (exception) {
+		CanvasMock = require("./canvas-mock").CanvasMock;
+	}
 
 	var ElementMock = function() {
 		this.children = this.childNodes = [];
