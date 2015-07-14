@@ -11,9 +11,10 @@
 		};
 	};
 	CanvasContextMock.prototype.translate = function() {};
+	CanvasContextMock.prototype.save = function() {};
 	CanvasContextMock.prototype.rotate = function() {};
 	CanvasContextMock.prototype.restore = function() {};
-	CanvasContextMock.prototype.filltext = function() {};
+	CanvasContextMock.prototype.fillText = function() {};
 	CanvasContextMock.prototype.strokeText = function() {};
 	CanvasContextMock.prototype.getImageData = function() {
 		return {
@@ -27,10 +28,12 @@
 		};
 		return this;
 	};
+	CanvasMock.mock = true;
+
 	try {
 		if (!global.Canvas) {
 			global.Canvas = CanvasMock;
-			console.log("Adding Canvas to global");
+			console.log("Adding CanvasMock to global as Canvas");
 		}
 	} catch (exception) {
 		console.warn("Not exporting Canvas", exception.stack);

@@ -15,7 +15,7 @@
       try {
         CanvasMock = require("canvas");
       } catch (exception) {
-        console.warn("canvas is not installed, testing only the d3 layout, not the full behavior.\n If you want to test the full behavior, please Google how to install Cairo and canvas for our operating system");
+        console.warn("canvas is not installed, testing only the d3 layout, not the full behavior.\n If you want to test the full behavior, please Google how to install Cairo and canvas for your operating system");
         CanvasMock = require("./canvas-mock").CanvasMock;
       }
     }

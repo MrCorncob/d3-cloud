@@ -5,6 +5,7 @@
 
   try {
 
+    var LocalCanvas;
     var locald3;
     var cloud;
 
@@ -12,8 +13,16 @@
       locald3 = d3;
       cloud = d3.layout.cloud;
     } catch (e) {
-      locald3 = require("d3");
-      cloud = require("../");
+      try {
+        LocalCanvas = require("canvas");
+      } catch (exception) {
+        console.warn("canvas is not installed, testing only the d3 layout, not the full behavior.\n If you want to test the full behavior, please Google how to install Cairo and canvas for your operating system");
+        LocalCanvas = require("./canvas-mock").CanvasMock;
+      }
+      global.d3 = global.d3 || require("d3");
+      locald3 = global.d3;
+      require("../src/d3.layout.cloud");
+      cloud = locald3.layout.cloud;
     }
 
     var calculateAndScaleMeaningfulWords = function(text) {
@@ -53,7 +62,6 @@
 
       return frequencyCount;
     };
-
 
     var SHORT_TEXT = "Hello world normally you want more words than this example.";
     var wordsByFrequency = calculateAndScaleMeaningfulWords(SHORT_TEXT);
@@ -162,74 +170,77 @@
         });
       });
 
-      describe('start()', function() {
+      if (!LocalCanvas || !LocalCanvas.mock) {
 
-        var myStartedCloud = cloud()
-          .padding(0)
-          .size([WIDTH, HEIGHT])
-          .font('Impact')
-          .text(function(word) {
-            return word.key;
-          })
-          .on('end', function() {
-            // Normally draw here 
+        describe('start()', function() {
+
+          var myStartedCloud = cloud()
+            .padding(0)
+            .size([WIDTH, HEIGHT])
+            .font('Impact')
+            .text(function(word) {
+              return word.key;
+            })
+            .on('end', function() {
+              // Normally draw here 
+            });
+
+          it('should add svg attributes if Canvas is available', function() {
+            expect(wordsByFrequency[2].key).toEqual('normally');
+            expect(wordsByFrequency[2].value).toEqual(1);
+
+            myStartedCloud.words(wordsByFrequency);
+            var sampleWordObject = myStartedCloud.words()[1];
+            expect(sampleWordObject.key).toEqual('world');
+            expect(sampleWordObject.value).toEqual(1);
+
+            expect(sampleWordObject.text).toBeUndefined();
+            expect(sampleWordObject.font).toBeUndefined();
+            expect(sampleWordObject.style).toBeUndefined();
+            expect(sampleWordObject.weight).toBeUndefined();
+            expect(sampleWordObject.rotate).toBeUndefined();
+            expect(sampleWordObject.size).toBeUndefined();
+            expect(sampleWordObject.padding).toBeUndefined();
+            expect(sampleWordObject.width).toBeUndefined();
+            expect(sampleWordObject.height).toBeUndefined();
+            expect(sampleWordObject.xoff).toBeUndefined();
+            expect(sampleWordObject.yoff).toBeUndefined();
+            expect(sampleWordObject.x1).toBeUndefined();
+            expect(sampleWordObject.y1).toBeUndefined();
+            expect(sampleWordObject.x0).toBeUndefined();
+            expect(sampleWordObject.y0).toBeUndefined();
+            expect(sampleWordObject.hasText).toBeUndefined();
+            expect(sampleWordObject.x).toBeUndefined();
+            expect(sampleWordObject.y).toBeUndefined();
+
+            myStartedCloud.start();
+            expect(sampleWordObject.text).toEqual(sampleWordObject.key);
+            expect(sampleWordObject.font).toEqual('Impact');
+            expect(sampleWordObject.style).toEqual('normal');
+            expect(sampleWordObject.weight).toEqual('normal');
+
+            expect(sampleWordObject.rotate).toBeDefined();
+            expect(sampleWordObject.size).toBeDefined();
+            expect(sampleWordObject.padding).toBeDefined();
+            expect(sampleWordObject.width).toBeDefined();
+            expect(sampleWordObject.height).toBeDefined();
+            expect(sampleWordObject.xoff).toBeDefined();
+            expect(sampleWordObject.yoff).toBeDefined();
+            expect(sampleWordObject.x1).toBeDefined();
+            expect(sampleWordObject.y1).toBeDefined();
+            expect(sampleWordObject.x0).toBeDefined();
+            expect(sampleWordObject.y0).toBeDefined();
+            expect(sampleWordObject.hasText).toBeDefined();
+            expect(sampleWordObject.x).toBeDefined();
+            expect(sampleWordObject.y).toBeDefined();
+            // expect(sampleWordObject.sprite).toBeDefined();
           });
 
-        it('should add svg attributes', function() {
-          expect(wordsByFrequency[2].key).toEqual('normally');
-          expect(wordsByFrequency[2].value).toEqual(1);
-
-          myStartedCloud.words(wordsByFrequency);
-          var sampleWordObject = myStartedCloud.words()[1];
-          expect(sampleWordObject.key).toEqual('world');
-          expect(sampleWordObject.value).toEqual(1);
-
-          expect(sampleWordObject.text).toBeUndefined();
-          expect(sampleWordObject.font).toBeUndefined();
-          expect(sampleWordObject.style).toBeUndefined();
-          expect(sampleWordObject.weight).toBeUndefined();
-          expect(sampleWordObject.rotate).toBeUndefined();
-          expect(sampleWordObject.size).toBeUndefined();
-          expect(sampleWordObject.padding).toBeUndefined();
-          expect(sampleWordObject.width).toBeUndefined();
-          expect(sampleWordObject.height).toBeUndefined();
-          expect(sampleWordObject.xoff).toBeUndefined();
-          expect(sampleWordObject.yoff).toBeUndefined();
-          expect(sampleWordObject.x1).toBeUndefined();
-          expect(sampleWordObject.y1).toBeUndefined();
-          expect(sampleWordObject.x0).toBeUndefined();
-          expect(sampleWordObject.y0).toBeUndefined();
-          expect(sampleWordObject.hasText).toBeUndefined();
-          expect(sampleWordObject.x).toBeUndefined();
-          expect(sampleWordObject.y).toBeUndefined();
-
-          myStartedCloud.start();
-          expect(sampleWordObject.text).toEqual(sampleWordObject.key);
-          expect(sampleWordObject.font).toEqual('Impact');
-          expect(sampleWordObject.style).toEqual('normal');
-          expect(sampleWordObject.weight).toEqual('normal');
-
-          expect(sampleWordObject.rotate).toBeDefined();
-          expect(sampleWordObject.size).toBeDefined();
-          expect(sampleWordObject.padding).toBeDefined();
-          expect(sampleWordObject.width).toBeDefined();
-          expect(sampleWordObject.height).toBeDefined();
-          expect(sampleWordObject.xoff).toBeDefined();
-          expect(sampleWordObject.yoff).toBeDefined();
-          expect(sampleWordObject.x1).toBeDefined();
-          expect(sampleWordObject.y1).toBeDefined();
-          expect(sampleWordObject.x0).toBeDefined();
-          expect(sampleWordObject.y0).toBeDefined();
-          expect(sampleWordObject.hasText).toBeDefined();
-          expect(sampleWordObject.x).toBeDefined();
-          expect(sampleWordObject.y).toBeDefined();
-          // expect(sampleWordObject.sprite).toBeDefined();
         });
 
-      });
+      }
 
     });
-
 
   } catch (e) {
     console.log(e);
