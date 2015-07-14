@@ -436,18 +436,26 @@ function cloud(d3) {
     ratio = Math.sqrt(canvas.getContext("2d").getImageData(0, 0, 1, 1).data.length >> 2);
     canvas.width = (cw << 5) / ratio;
     canvas.height = ch / ratio;
-  } else if (!!Canvas) {
-    // Attempt to use node-canvas.
-    canvas = new Canvas(cw << 5, ch);
+  } else {
+    try {
+      if (!!Canvas) {
+        // Attempt to use node-canvas.
+        canvas = new Canvas(cw << 5, ch);
+      }
+    } catch (exception) {
+      console.warn("Unable to use Canvas, clouds will not be able to render.", exception);
+    }
   }
-
-  var c = canvas.getContext("2d"),
-    spirals = {
-      archimedean: archimedeanSpiral,
-      rectangular: rectangularSpiral
-    };
-  c.fillStyle = c.strokeStyle = "red";
-  c.textAlign = "center";
+  var c;
+  if (canvas) {
+    c = canvas.getContext("2d"),
+      spirals = {
+        archimedean: archimedeanSpiral,
+        rectangular: rectangularSpiral
+      };
+    c.fillStyle = c.strokeStyle = "red";
+    c.textAlign = "center";
+  }
 
 }
 })();

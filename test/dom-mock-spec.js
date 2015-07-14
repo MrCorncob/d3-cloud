@@ -6,16 +6,15 @@
   try {
 
     var localdocument;
-    var ElementMock;
+    var ElementMock = ElementMock = function() {
+      var el = localdocument.createElement("div");
+      el.createElement = function() {
+        return localdocument.createElement();
+      };
+      return el;
+    };
     try {
       localdocument = document;
-      ElementMock = function() {
-        var el = localdocument.createElement("div");
-        el.createElement = function() {
-          return localdocument.createElement();
-        };
-        return el;
-      };
     } catch (e) {
       try {
         localdocument = require("jsdom").jsdom("<html><head></head><body><div id='a-cloud'></div></body></html>");
@@ -89,9 +88,12 @@
           expect(simpleCloudElement).toBeDefined();
           if (simpleCloudElement.type) {
             expect(simpleCloudElement.type).toEqual("image");
+            expect(typeof simpleCloudElement.getContext).toEqual("function");
+          } else {
+            expect(typeof simpleCloudElement).toEqual("object");
+
           }
 
-          expect(typeof simpleCloudElement.getContext).toEqual("function");
         });
 
       });

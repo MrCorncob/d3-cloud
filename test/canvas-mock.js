@@ -30,6 +30,7 @@
 	try {
 		if (!global.Canvas) {
 			global.Canvas = CanvasMock;
+			console.log("Adding Canvas to global");
 		}
 	} catch (exception) {
 		console.warn("Not exporting Canvas", exception.stack);

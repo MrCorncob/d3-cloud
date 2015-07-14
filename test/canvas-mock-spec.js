@@ -5,13 +5,12 @@
 
   try {
 
-    var CanvasMock;
+    var CanvasMock = CanvasMock = function() {
+      var el = document.createElement("canvas");
+      return el;
+    };
     try {
       var doesDocumentWork = document;
-      CanvasMock = function() {
-        var el = document.createElement("canvas");
-        return el;
-      };
     } catch (e) {
       try {
         CanvasMock = require("canvas");
@@ -49,14 +48,14 @@
             var context1 = canvas3.getContext("2d");
             expect(context1).toBeDefined();
             expect(context1.clearRect).toBeDefined();
-            expect(context1.clearRect(0,0,canvas3.width, canvas3.height)).toEqual();
+            expect(context1.clearRect(0, 0, canvas3.width, canvas3.height)).toEqual();
 
             expect(context1.measureText).toBeDefined();
             expect(context1.measureText("test")).toBeDefined();
 
             expect(context1.getImageData).toBeDefined();
-            expect(context1.getImageData(0,0,canvas3.width, canvas3.height).data).toBeDefined();
-             
+            expect(context1.getImageData(0, 0, canvas3.width, canvas3.height).data).toBeDefined();
+
           });
 
         });
