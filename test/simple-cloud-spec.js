@@ -10,13 +10,18 @@
     localdocument = document;
     locald3 = d3;
   } catch (errorInNodejs) {
-    localdocument = require("jsdom").jsdom("<html><head></head><body><div id='a-cloud'></div></body></html>");
+    try {
+      localdocument = require("jsdom").jsdom("<html><head></head><body><div id='a-cloud'></div></body></html>");
+    } catch (exception) {
+      console.log("If you want to test in nodejs, you need jsdom: `npm install jsdom@3.0`", exception.stack);
+      return;
+    }
     global.d3 = global.d3 || require("d3");
     locald3 = global.d3;
     try {
       require("../");
     } catch (exception) {
-      console.log("Unable to load dependancies for d3.layout.cloud", exception.stack);
+      console.warn("Canvas is probably not installed, testing only the d3 layout, not the full behavior.\nIf you want to test the full behavior, please Google how to \ninstall Cairo and canvas for your operating system.\n", exception.stack);
       return;
     }
   }

@@ -13,7 +13,12 @@
       reuseOptimzedCloud = d3.layout.cloud;
     } catch (e) {
       locald3 = require("d3");
-      reuseOptimzedCloud = require("../");
+      try {
+        reuseOptimzedCloud = require("../");
+      } catch (exception) {
+        console.warn(exception.stack);
+        return;
+      }
     }
 
     var calculateAndScaleMeaningfulWords = function(text) {
