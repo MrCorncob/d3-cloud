@@ -9,7 +9,8 @@ function wordCloud(selector) {
 
   var fill = d3.scale.category20();
 
-  var svg = d3.select(selector).append("svg")
+  var svg = d3.select(selector)
+              .append("svg")
               .attr("width", 500)
               .attr("height", 500)
               .append("g")
