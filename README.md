@@ -1,6 +1,7 @@
 # Word Cloud Layout
 [![Build Status](https://travis-ci.org/iLanguage/d3-cloud.png)](https://travis-ci.org/iLanguage/d3-cloud)
 
+
 This is a [Wordle](http://www.wordle.net/)-inspired word cloud layout written
 in JavaScript. It uses HTML5 canvas and sprite masks to achieve
 near-interactive speeds.
