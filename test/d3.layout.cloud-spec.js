@@ -7,11 +7,13 @@
 
     var locald3;
     var cloud;
+    var Canvas;
 
     try {
       locald3 = d3;
       cloud = d3.layout.cloud;
     } catch (e) {
+      Canvas = require("canvas");
       locald3 = require("d3");
       cloud = require("../");
     }
@@ -88,7 +90,7 @@
               return word.key;
             })
             .on('end', function() {
-              // Normally draw here 
+              // Normally draw here
             });
 
           expect(myChainConfiguredCloud).toBeDefined();
@@ -123,7 +125,7 @@
             return word.key;
           })
           .on('end', function() {
-            // Normally draw here 
+            // Normally draw here
           });
 
         it('should have a words() function which sets and/or returns the words in the cloud', function() {
@@ -165,6 +167,13 @@
       describe('start()', function() {
 
         var myStartedCloud = cloud()
+          .canvas(function() {
+            if (typeof document !== 'undefined') {
+              return document.createElement('canvas');
+            } else {
+              return new Canvas(1, 1);
+            }
+          })
           .padding(0)
           .size([WIDTH, HEIGHT])
           .font('Impact')
@@ -172,7 +181,7 @@
             return word.key;
           })
           .on('end', function() {
-            // Normally draw here 
+            // Normally draw here
           });
 
         it('should add svg attributes', function() {
