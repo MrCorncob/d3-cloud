@@ -8,7 +8,9 @@ var cloudRadians = Math.PI / 180,
     ch = 1 << 11;
 
 module.exports = function() {
-  var size = [256, 256],
+  var DEFAULT_WIDTH = 256,
+      DEFAULT_HEIGHT = 256,
+      size = [DEFAULT_WIDTH, DEFAULT_HEIGHT],
       text = cloudText,
       font = cloudFont,
       fontSize = cloudFontSize,
@@ -162,6 +164,9 @@ module.exports = function() {
   };
 
   cloud.size = function(_) {
+    if (!arguments.length) return size;
+    if (!_[0] || _[0] < 0) _[0] = DEFAULT_WIDTH;
+    if (!_[1] || _[1] < 1) _[1] = DEFAULT_HEIGHT;
     return arguments.length ? (size = [+_[0], +_[1]], cloud) : size;
   };
 
