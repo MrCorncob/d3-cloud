@@ -3,7 +3,6 @@ bower_components/
 output.html
 output.svg
 npm-debug.log
-package-lock.json
 yarn.lock
 
 # OS generated files #

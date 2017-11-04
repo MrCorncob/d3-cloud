@@ -28,6 +28,7 @@ module.exports = function() {
       cloud = {},
       canvas = cloudCanvas;
 
+  cloud.version = "1.2.4";
   cloud.canvas = function(_) {
     return arguments.length ? (canvas = functor(_), cloud) : canvas;
   };
