@@ -9,7 +9,9 @@ var cloudRadians = Math.PI / 180,
     ch = 1 << 11;
 
 module.exports = function() {
-  var size = [256, 256],
+  var DEFAULT_WIDTH = 256,
+      DEFAULT_HEIGHT = 256,
+      size = [DEFAULT_WIDTH, DEFAULT_HEIGHT],
       text = cloudText,
       font = cloudFont,
       fontSize = cloudFontSize,
@@ -23,9 +25,11 @@ module.exports = function() {
       event = dispatch("word", "end"),
       timer = null,
       random = Math.random,
+      overflow = false,
       cloud = {},
       canvas = cloudCanvas;
 
+  cloud.version = "1.2.5-rc0";
   cloud.canvas = function(_) {
     return arguments.length ? (canvas = functor(_), cloud) : canvas;
   };
@@ -55,20 +59,36 @@ module.exports = function() {
     return cloud;
 
     function step() {
-      var start = Date.now();
+      var start = Date.now(),
+        d, x, y, nsi;
       while (Date.now() - start < timeInterval && ++i < n && timer) {
-        var d = data[i];
-        d.x = (size[0] * (random() + .5)) >> 1;
-        d.y = (size[1] * (random() + .5)) >> 1;
+        d = data[i];
+        x = d.x = (size[0] * (random() + .5)) >> 1;
+        y = d.y = (size[1] * (random() + .5)) >> 1;
+        nsi = i + 1;
         cloudSprite(contextAndRatio, d, data, i);
-        if (d.hasText && place(board, d, bounds)) {
-          tags.push(d);
-          event.call("word", cloud, d);
-          if (bounds) cloudBounds(bounds, d);
-          else bounds = [{x: d.x + d.x0, y: d.y + d.y0}, {x: d.x + d.x1, y: d.y + d.y1}];
-          // Temporary hack
-          d.x -= size[0] >> 1;
-          d.y -= size[1] >> 1;
+        while (d.hasText) {
+          if (place(board, d, bounds)) {
+            tags.push(d);
+            event.call("word", cloud, d);
+            if (bounds) cloudBounds(bounds, d);
+            else bounds = [{x: d.x + d.x0, y: d.y + d.y0}, {x: d.x + d.x1, y: d.y + d.y1}];
+            // Temporary hack
+            d.x -= size[0] >> 1;
+            d.y -= size[1] >> 1;
+            break;
+          } else {
+            // reset
+            delete d.sprite;
+            d.sprite = null;
+            d.x = x;
+            d.y = y;
+            // decrement the size until it fits
+            d.size = nsi < data.length ? data[nsi++].size : d.size - (d.size >> 3);
+            if (~~d.size > 0) {
+              cloudSprite(contextAndRatio, d, data, i);
+            }
+          }
         }
       }
       if (i >= n) {
@@ -121,7 +141,11 @@ module.exports = function() {
       tag.y = startY + dy;
 
       if (tag.x + tag.x0 < 0 || tag.y + tag.y0 < 0 ||
-          tag.x + tag.x1 > size[0] || tag.y + tag.y1 > size[1]) continue;
+          tag.x + tag.x1 > size[0] || tag.y + tag.y1 > size[1]) {
+        if (!overflow) {
+          continue;
+        }
+      }
       // TODO only check for collisions within current bounds.
       if (!bounds || !cloudCollide(tag, board, size[0])) {
         if (!bounds || collideRects(tag, bounds)) {
@@ -158,6 +182,9 @@ module.exports = function() {
   };
 
   cloud.size = function(_) {
+    if (!arguments.length) return size;
+    if (!_[0] || _[0] < 0) _[0] = DEFAULT_WIDTH;
+    if (!_[1] || _[1] < 1) _[1] = DEFAULT_HEIGHT;
     return arguments.length ? (size = [+_[0], +_[1]], cloud) : size;
   };
 
@@ -191,6 +218,10 @@ module.exports = function() {
 
   cloud.padding = function(_) {
     return arguments.length ? (padding = functor(_), cloud) : padding;
+  };
+
+  cloud.overflow = function(_) {
+    return arguments.length ? (overflow = functor(_), cloud) : overflow;
   };
 
   cloud.random = function(_) {

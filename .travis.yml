@@ -6,8 +6,8 @@ branches:
 
 node_js:
   - 4
-  - 6
-  - 8
+  # - 6
+  # - 8
 
 before_install:
  - sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
