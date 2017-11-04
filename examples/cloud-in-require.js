@@ -1,14 +1,15 @@
 require([
     'd3',
-    'd3.layout.cloud'
+    'd3-cloud'
 ], function(
-    d3
+    d3,
+    cloud
 ){
     'use strict';
 
     var fill = d3.scale.category20();
 
-    d3.layout.cloud().size([300, 300])
+    cloud().size([300, 300])
         .words("Hello AMD users this example cloud uses requirejs and define".split(" ").map(function(d) {
         return {text: d, size: 10 + Math.random() * 90};
         }))

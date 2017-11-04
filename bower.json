@@ -1,7 +1,7 @@
 {
   "name": "d3-cloud",
-  "main": "d3.layout.cloud.js",
-  "version": "1.1.2",
+  "version": "1.2.4",
+  "main": "build/d3.layout.cloud.js",
   "homepage": "https://github.com/jasondavies/d3-cloud",
   "authors": [
     "Jason Davies"
@@ -17,6 +17,9 @@
     "wordcloud"
   ],
   "license": "BSD",
+  "dependencies": {
+    "d3-dispatch": "1"
+  },
   "ignore": [
     "**/.*",
     "node_modules",
@@ -26,6 +29,7 @@
     "src",
     "test",
     "tests",
+    "node_modules",
     "package.json"
   ]
 }
