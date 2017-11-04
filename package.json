@@ -20,16 +20,19 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node test"
+    "start": "node examples/node.js",
+    "test": "jasmine-node test",
+    "test:browser": "cd test && bower install && open SpecRunner.html"
   },
   "dependencies": {
-    "d3": "^3.5.5"
+    "d3": "^3.5.17"
   },
   "optionalDependencies": {
-    "canvas": "^1.2.1",
-    "jsdom": "^3.0.0"
+    "canvas": "^1.6.7",
+    "jsdom": "^11.3.0"
   },
   "devDependencies": {
-    "mersenne-twister": "^1.0.1"
+    "jasmine-node": "^1.14.5",
+    "mersenne-twister": "^1.1.0"
   }
 }

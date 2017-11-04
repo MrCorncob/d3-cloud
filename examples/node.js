@@ -4,18 +4,19 @@
   'use strict';
 
   var d3 = require('d3');
+  var JSDOM = require("jsdom").JSDOM;
+  global.document = new JSDOM("<!DOCTYPE html><body></body>").window.document;
   var cloud = require('../');
-  var jsdom = require("jsdom").jsdom;
   var fs = require('fs');
 
-  // Hoist all vars 
+  // Hoist all vars
   var document,
     myFewWords,
     myCloud,
     myColorFunction,
     myDrawFunction;
 
-  document = jsdom("<body></body>");
+  document = global.document;
 
   // Short hand to build an array of word objects with random importance
   myFewWords = "Server side render into .SVG file which you can open in Gimp or Inkscape".split(" ")
@@ -54,7 +55,7 @@
     });
 
 
-  // Declare our own draw function which will be called on the "end" event 
+  // Declare our own draw function which will be called on the "end" event
   myDrawFunction = function(words, element) {
     var svg = d3.select(element).append("svg");
     svg.attr("width", 400)

@@ -15,7 +15,8 @@
       d3CloudLayout = d3.layout.cloud;
       LocalMersenneTwister = MersenneTwister;
     } catch (e) {
-      localdocument = require("jsdom").jsdom("<body></body>");
+      var JSDOM = require("jsdom").JSDOM;
+      global.document = localdocument = new JSDOM("<!DOCTYPE html><body></body>").window.document;
       locald3 = require("d3");
       d3CloudLayout = require("../");
       LocalMersenneTwister = require("mersenne-twister");
@@ -44,7 +45,7 @@
       myColorFunction = locald3.scale.category20();
 
 
-      // Declare our own draw function which will be called on the "end" event 
+      // Declare our own draw function which will be called on the "end" event
       myReproduceableDrawFunction = function(words, element) {
         // if (element && element.children) {
         //   element.innerHTML = "";
@@ -83,7 +84,7 @@
       describe('generate same text data', function() {
         var firstPageLoad = myFewWordsFactory("As a dev I want to be able to generate similar word arrays");
         var secondPageLoad = myFewWordsFactory("As a dev I want to be able to generate similar word arrays");
-        
+
         it('should have equivalent data', function() {
           expect(secondPageLoad[0].importance).not.toEqual(firstPageLoad[firstPageLoad.length - 1].importance);
           for (var wordIndex = 0; wordIndex < secondPageLoad.length; wordIndex++) {
@@ -99,7 +100,7 @@
 
       describe('Redraw a new random cloud', function() {
 
-        // Hoist all vars 
+        // Hoist all vars
         var myRerenderableCloud,
           redrawNewCloudElement;
 
@@ -212,7 +213,7 @@
        * https://github.com/WheatonCS/Lexos/issues/149
        */
       describe('Redraw the same pseudorandom cloud from the same text', function() {
-        // Hoist all vars 
+        // Hoist all vars
         var myPseudorandomCloud,
           myPseudorandomCloudsElement,
           myRandomGenerator = new LocalMersenneTwister(SEED),
@@ -333,7 +334,7 @@
 
       describe('Redraw a persisted cloud', function() {
 
-        // Hoist all vars 
+        // Hoist all vars
         var myPreviousCloudFromAPersistantStore,
           myCloudFromPersistantStore,
           previouslyRenderedCloudElement;

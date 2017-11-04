@@ -431,13 +431,18 @@ function cloud(d3) {
 
   if (typeof document !== "undefined") {
     canvas = document.createElement("canvas");
-    canvas.width = 1;
-    canvas.height = 1;
-    ratio = Math.sqrt(canvas.getContext("2d").getImageData(0, 0, 1, 1).data.length >> 2);
-    canvas.width = (cw << 5) / ratio;
-    canvas.height = ch / ratio;
-  } else if (!!Canvas) {
+    if (canvas) {
+      canvas.width = 1;
+      canvas.height = 1;
+      ratio = Math.sqrt(canvas.getContext("2d").getImageData(0, 0, 1, 1).data.length >> 2);
+      canvas.width = (cw << 5) / ratio;
+      canvas.height = ch / ratio;
+    }
+  }
+
+  if (!canvas) {
     // Attempt to use node-canvas.
+    var Canvas = require('canvas');
     canvas = new Canvas(cw << 5, ch);
   }
 

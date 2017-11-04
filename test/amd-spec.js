@@ -10,7 +10,8 @@
       localdocument = document;
       locald3 = d3;
     } catch (e) {
-      localdocument = require("jsdom").jsdom("<html><head></head><body></body></html>");
+      var JSDOM = require("jsdom").JSDOM;
+      global.document = localdocument = new JSDOM("<!DOCTYPE html><body></body>").window.document;
       locald3 = require("d3");
       require("../");
     }

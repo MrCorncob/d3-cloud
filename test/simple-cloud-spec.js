@@ -11,7 +11,8 @@
       localdocument = document;
       locald3 = d3;
     } catch (e) {
-      localdocument = require("jsdom").jsdom("<html><head></head><body><div id='a-cloud'></div></body></html>");
+      var JSDOM = require("jsdom").JSDOM;
+      global.document = localdocument = new JSDOM("<!DOCTYPE html><html><head></head><body><div id='a-cloud'></div></body></html>").window.document;
       locald3 = require("d3");
       require("../");
     }
