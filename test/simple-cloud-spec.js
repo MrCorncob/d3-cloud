@@ -7,14 +7,16 @@
 
     var localdocument;
     var locald3;
+    var localcloud;
     try {
       localdocument = document;
       locald3 = d3;
+      localcloud = d3.layout.cloud;
     } catch (e) {
       var JSDOM = require("jsdom").JSDOM;
       global.document = localdocument = new JSDOM("<!DOCTYPE html><html><head></head><body><div id='a-cloud'></div></body></html>").window.document;
       locald3 = require("d3");
-      require("../");
+      localcloud = require("../");
     }
     // window = localdocument.createWindow();
     // navigator = window.navigator;
@@ -27,7 +29,7 @@
 
       var fill = locald3.scale.category20();
 
-      var mySimpleCloud = locald3.layout.cloud().size([300, 300])
+      var mySimpleCloud = localcloud().size([300, 300])
         .words([
           "Hello", "world", "normally", "you", "want", "more", "words",
           "than", "this"
