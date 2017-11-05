@@ -59,12 +59,12 @@ module.exports = function() {
 
     function step() {
       var start = Date.now(),
-        d, x, y, nsi;
+        missing = 0,
+        d, x, y;
       while (Date.now() - start < timeInterval && ++i < n && timer) {
         d = data[i];
         x = d.x = (size[0] * (random() + .5)) >> 1;
         y = d.y = (size[1] * (random() + .5)) >> 1;
-        nsi = i + 1;
         cloudSprite(contextAndRatio, d, data, i);
         while (d.hasText) {
           if (place(board, d, bounds)) {
@@ -77,13 +77,26 @@ module.exports = function() {
             d.y -= size[1] >> 1;
             break;
           } else {
+            // If the word wont be noticed (the cloud contains 200+ words)
+            // Or impossible to get fit, give up on this one
+            if (data.length > 200 || (d.retries && d.retries === 3)) {
+              missing++;
+              // console.log('giving up', d);
+              d.sprite = d.sprite || [];
+              break;
+            }
+            d.retries = d.retries || 1;
+            d.retries++;
             // reset
+            // d.sprite = []
             delete d.sprite;
             d.sprite = null;
             d.x = x;
             d.y = y;
+
             // decrement the size until it fits
-            d.size = nsi < data.length ? data[nsi++].size : d.size - (d.size >> 3);
+            d.size = d.size * 0.7;
+            // d.size = d.size - 3;
             if (~~d.size > 0) {
               cloudSprite(contextAndRatio, d, data, i);
             }
@@ -91,6 +104,9 @@ module.exports = function() {
         }
       }
       if (i >= n) {
+        if (missing) {
+          console.warn(missing + " words were unable to fit, they were not rendered.");
+        }
         cloud.stop();
         event.call("end", cloud, tags, bounds);
       }
