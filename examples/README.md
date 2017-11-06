@@ -19,7 +19,7 @@ $ ./examples/node.js
 
 ### Reproducable cloud
 
-[replicable-layout-spec.html](../test/replicable-layout-spec.js) Shows how to write a draw function that will let the cloud keep its previous layout, or use a random seed to always draw the same layout for the same text.
+[replicable-layout-spec.html](../test/replicable-layout-spec.html) Shows how to write a draw function that will let the cloud keep its previous layout, or use a random seed to always draw the same layout for the same text.
 
 ![screen shot 2015-06-24 at 10 47 06 pm](https://cloud.githubusercontent.com/assets/196199/8345871/fa558570-1ac2-11e5-912a-873102fdc815.png)
 
@@ -48,13 +48,21 @@ $ ./examples/node.js
 
 [easy.html](easy.html) shows how you can set some easy options using the `src/easy-word-cloud.js` library.
 
-![easy](https://cloud.githubusercontent.com/assets/196199/8345812/6283f268-1ac2-11e5-96d7-4b57758e0116.png) 
+![easy](https://cloud.githubusercontent.com/assets/196199/8345812/6283f268-1ac2-11e5-96d7-4b57758e0116.png)
 
 
-### Fit overflow 
+### Fit overflow
 
 [simple_with_overflow.html](simple_with_overflow.html) Shows an example where really large words are still drawn when they dont fit. This is something that is under progress in the issue tracker https://github.com/jasondavies/d3-cloud/issues/36
 
 
 ![fit_overflow](https://cloud.githubusercontent.com/assets/196199/8345882/2468540a-1ac3-11e5-92cd-9ad91f4c7c02.png)
 
+
+
+### Recursive fit performance test
+
+[lots-of-words.html](lots-of-words.html) Shows an example with 2000+ unicode words
+
+
+![lots_of_words](https://user-images.githubusercontent.com/196199/32422212-023d64a2-c26d-11e7-9c71-75bd86e83500.png)
